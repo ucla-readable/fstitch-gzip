@@ -104,6 +104,24 @@ AC_TYPE_SIGNAL
 AC_TYPE_SIZE_T
 AC_TYPE_OFF_T
 
+AC_ARG_WITH(opgroup-inc,
+	AS_HELP_STRING([--with-opgroup-inc=PATH],
+		[Specify the path to the directory containing kfs/opgroup.h]),
+	OPGROUP_INC="-I$withval", OPGROUP_INC=)
+AC_ARG_WITH(opgroup-lib,
+	AS_HELP_STRING([--with-opgroup-lib=PATH],
+		[Specify the path to the directory containing libopgroup.so]),
+	OPGROUP_LIB="-L$withval", OPGROUP_LIB=)
+LIBOPGROUP_CFLAGS="$OPGROUP_INC"
+LIBOPGROUP_LIBS="$OPGROUP_LIB -lopgroup"
+save_cppflags="$CFLAGS"
+CPPFLAGS="$CPPFLAGS $LIBOPGROUP_CFLAGS"
+AC_CHECK_HEADER([kfs/opgroup.h], , AC_MSG_ERROR([could not find opgroup.h]))
+CPPFLAGS="$save_cppflags"
+AC_CHECK_LIB([opgroup], [opgroup_create], , AC_MSG_ERROR([could not link against opgroup library]), ${LIBOPGROUP_LIBS})
+AC_SUBST([LIBOPGROUP_CFLAGS])
+AC_SUBST([LIBOPGROUP_LIBS])
+
 AC_PREFIX_PROGRAM(gzip)
 
 AC_CONFIG_FILES([Makefile doc/Makefile lib/Makefile])

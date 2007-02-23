@@ -18,7 +18,7 @@
 
 SUBDIRS = lib doc
 ACLOCAL_AMFLAGS = -I m4
-AM_CPPFLAGS = -I$(top_srcdir)/lib
+AM_CPPFLAGS = -I$(top_srcdir)/lib @LIBOPGROUP_CFLAGS@
 
 man_MANS = gunzip.1 gzexe.1 gzip.1 \
   zcat.1 zcmp.1 zdiff.1 zforce.1 zgrep.1 zless.1 zmore.1 znew.1
@@ -43,7 +43,7 @@ bin_SCRIPTS = gzexe zdiff zgrep zforce zless zmore znew
 gzip_SOURCES = \
   bits.c crypt.c deflate.c gzip.c inflate.c lzw.c \
   trees.c unlzh.c unlzw.c unpack.c unzip.c util.c zip.c
-gzip_LDADD = lib/libgzip.a
+gzip_LDADD = lib/libgzip.a @LIBOPGROUP_LIBS@
 
 gzip.doc: gzip.1
 	groff -man -Tascii $(srcdir)/gzip.1 | col -b | uniq >$@
