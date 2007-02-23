@@ -1,0 +1,13 @@
+.deps
+Makefile
+autom4te.cache
+config.log
+config.status
+gzexe
+zdiff
+zforce
+zgrep
+zless
+zmore
+znew
+gzip

@@ -1,0 +1,7 @@
+.deps
+Makefile
+config.h
+libgzip.a
+fcntl.h
+stamp-h1
+sys
