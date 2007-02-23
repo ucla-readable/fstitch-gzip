@@ -63,6 +63,7 @@ static char rcsid[] = "$Id: gzip.c,v 1.11 2006/12/12 00:03:17 eggert Exp $";
 #include <signal.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <kfs/opgroup.h>
 
 #include "tailor.h"
 #include "gzip.h"
@@ -683,6 +684,8 @@ local void treat_stdin()
 local void treat_file(iname)
     char *iname;
 {
+	static opgroup_id_t of_ogid;
+
     /* Accept "-" as synonym for stdin */
     if (strequ(iname, "-")) {
 	int cflag = to_stdout;
@@ -790,6 +793,12 @@ local void treat_file(iname)
 	ofd = fileno(stdout);
 	/* Keep remove_ofname_fd negative.  */
     } else {
+	of_ogid = opgroup_create(0);
+	if (of_ogid < 0)
+		write_error ();
+	if (opgroup_release(of_ogid) != 0 || opgroup_engage(of_ogid) != 0)
+		write_error ();
+
 	if (create_outfile() != OK) return;
 
 	if (!decompress && save_orig_name && !verbose && !quiet) {
@@ -826,15 +835,32 @@ local void treat_file(iname)
     if (!to_stdout)
       {
 	sigset_t oldset;
+	opgroup_id_t unlink_ogid;
 	int unlink_errno;
 
 	copy_stat (&istat);
 	if (close (ofd) != 0)
 	  write_error ();
+	if (opgroup_disengage(of_ogid) != 0)
+	  write_error ();
 
 	sigprocmask (SIG_BLOCK, &caught_signals, &oldset);
 	remove_ofname_fd = -1;
+	unlink_ogid = opgroup_create(0);
+	if (unlink_ogid < 0)
+	  write_error ();
+	if (opgroup_add_depend(unlink_ogid, of_ogid) != 0)
+	  write_error ();
+	if (opgroup_abandon(of_ogid) != 0)
+	  write_error ();
+	if (opgroup_release(unlink_ogid) != 0)
+	  write_error ();
+	if (opgroup_engage(unlink_ogid) != 0)
+		write_error ();
 	unlink_errno = xunlink (ifname) == 0 ? 0 : errno;
+	if (unlink_errno == 0)
+		if (opgroup_disengage(unlink_ogid) != 0 || opgroup_abandon(unlink_ogid) != 0)
+			write_error ();
 	sigprocmask (SIG_SETMASK, &oldset, NULL);
 
 	if (unlink_errno)
