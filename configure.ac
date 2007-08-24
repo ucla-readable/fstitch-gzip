@@ -104,23 +104,23 @@ AC_TYPE_SIGNAL
 AC_TYPE_SIZE_T
 AC_TYPE_OFF_T
 
-AC_ARG_WITH(opgroup-inc,
-	AS_HELP_STRING([--with-opgroup-inc=PATH],
-		[Specify the path to the directory containing kfs/opgroup.h]),
-	OPGROUP_INC="-I$withval", OPGROUP_INC=)
-AC_ARG_WITH(opgroup-lib,
-	AS_HELP_STRING([--with-opgroup-lib=PATH],
-		[Specify the path to the directory containing libopgroup.so]),
-	OPGROUP_LIB="-L$withval", OPGROUP_LIB=)
-LIBOPGROUP_CFLAGS="$OPGROUP_INC"
-LIBOPGROUP_LIBS="$OPGROUP_LIB -lopgroup"
+AC_ARG_WITH(patchgroup-inc,
+	AS_HELP_STRING([--with-patchgroup-inc=PATH],
+		[Specify the path to the directory containing fscore/patchgroup.h]),
+	PATCHGROUP_INC="-I$withval", PATCHGROUP_INC=)
+AC_ARG_WITH(patchgroup-lib,
+	AS_HELP_STRING([--with-patchgroup-lib=PATH],
+		[Specify the path to the directory containing libpatchgroup.so]),
+	PATCHGROUP_LIB="-L$withval", PATCHGROUP_LIB=)
+LIBPATCHGROUP_CFLAGS="$PATCHGROUP_INC"
+LIBPATCHGROUP_LIBS="$PATCHGROUP_LIB -lpatchgroup"
 save_cppflags="$CFLAGS"
-CPPFLAGS="$CPPFLAGS $LIBOPGROUP_CFLAGS"
-AC_CHECK_HEADER([kfs/opgroup.h], , AC_MSG_ERROR([could not find opgroup.h]))
+CPPFLAGS="$CPPFLAGS $LIBPATCHGROUP_CFLAGS"
+AC_CHECK_HEADER([fscore/patchgroup.h], , AC_MSG_ERROR([could not find patchgroup.h]))
 CPPFLAGS="$save_cppflags"
-AC_CHECK_LIB([opgroup], [opgroup_create], , AC_MSG_ERROR([could not link against opgroup library]), ${LIBOPGROUP_LIBS})
-AC_SUBST([LIBOPGROUP_CFLAGS])
-AC_SUBST([LIBOPGROUP_LIBS])
+AC_CHECK_LIB([patchgroup], [patchgroup_create], , AC_MSG_ERROR([could not link against patchgroup library]), ${LIBPATCHGROUP_LIBS})
+AC_SUBST([LIBPATCHGROUP_CFLAGS])
+AC_SUBST([LIBPATCHGROUP_LIBS])
 
 AC_PREFIX_PROGRAM(gzip)
 

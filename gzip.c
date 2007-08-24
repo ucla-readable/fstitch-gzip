@@ -63,7 +63,7 @@ static char rcsid[] = "$Id: gzip.c,v 1.11 2006/12/12 00:03:17 eggert Exp $";
 #include <signal.h>
 #include <sys/stat.h>
 #include <errno.h>
-#include <kfs/opgroup.h>
+#include <fscore/patchgroup.h>
 
 #include "tailor.h"
 #include "gzip.h"
@@ -684,7 +684,7 @@ local void treat_stdin()
 local void treat_file(iname)
     char *iname;
 {
-	static opgroup_id_t opgroup;
+	static patchgroup_id_t patchgroup;
 
     /* Accept "-" as synonym for stdin */
     if (strequ(iname, "-")) {
@@ -793,7 +793,7 @@ local void treat_file(iname)
 	ofd = fileno(stdout);
 	/* Keep remove_ofname_fd negative.  */
     } else {
-	if ((opgroup = opgroup_linear(-1)) < 0)
+	if ((patchgroup = patchgroup_linear(-1)) < 0)
 		write_error ();
 	if (create_outfile() != OK) return;
 
@@ -836,16 +836,16 @@ local void treat_file(iname)
 	copy_stat (&istat);
 	if (close (ofd) != 0)
 	  write_error ();
-	if (opgroup_disengage(opgroup) != 0)
+	if (patchgroup_disengage(patchgroup) != 0)
 	  write_error ();
 
 	sigprocmask (SIG_BLOCK, &caught_signals, &oldset);
 	remove_ofname_fd = -1;
-	if ((opgroup = opgroup_linear(opgroup)) < 0)
+	if ((patchgroup = patchgroup_linear(patchgroup)) < 0)
 		write_error ();
 	unlink_errno = xunlink (ifname) == 0 ? 0 : errno;
 	if (!unlink_errno)
-		if(opgroup_disengage(opgroup) || opgroup_abandon(opgroup))
+		if(patchgroup_disengage(patchgroup) || patchgroup_abandon(patchgroup))
 			write_error ();
 	sigprocmask (SIG_SETMASK, &oldset, NULL);
 
